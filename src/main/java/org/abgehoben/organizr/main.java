@@ -310,9 +310,10 @@ public class main extends Application {
                     buffer.setLength(0);
                     isUpdatePending.set(false);
                 }
+                progressArea.appendText(toAppend);
 
-                if (progressArea != null) {
-                    progressArea.appendText(toAppend);
+                if (progressArea.getLength() > 40000) {
+                    progressArea.replaceText(0, 10000, "");
                 }
             });
         }
