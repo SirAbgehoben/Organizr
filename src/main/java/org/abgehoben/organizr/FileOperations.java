@@ -167,7 +167,7 @@ public class FileOperations {
                 copyFile(sourceFile, primaryDest, params);
 
                 for (int i = 1; i < paths.size(); i++) {
-                    createSymlink(primaryDest.toFile(), paths.get(i));
+                    createSymlink(sourceFile, paths.get(i));
                 }
             } else {
                 for (Path destPath : paths) {
@@ -187,7 +187,7 @@ public class FileOperations {
                 moveFile(sourceFile, primaryDest, params);
 
                 for (int i = 1; i < paths.size(); i++) {
-                    createSymlink(primaryDest.toFile(), paths.get(i));
+                    createSymlink(sourceFile, paths.get(i));
                 }
             } else {
                 for (Path destPath : paths) {
