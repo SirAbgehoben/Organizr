@@ -1,13 +1,13 @@
 package org.abgehoben.organizr.enums;
 
-public enum FolderType {
+public enum FolderEntityType {
     ARTIST("Artist"),
     ALBUM("Album"),
     GENRE("Genre");
 
     public final String displayname;
 
-    FolderType(String displayname) {
+    FolderEntityType(String displayname) {
         this.displayname = displayname;
     }
 }

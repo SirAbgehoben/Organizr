@@ -1,18 +1,18 @@
-package org.abgehoben.organizr;
+package org.abgehoben.organizr.enums;
 
 public enum SortingScheme {
-    ARTIST_ALBUM("Artist/Album", ARTIST, ALBUM),
-    ALBUM_ARTIST("Album/Artist", ALBUM, ARTIST),
-    GENRE_ARTIST("Genre/Artist", GENRE, ARTIST),
-    ALBUM("Album", ALBUM, null),
-    ARTIST("Artist", ARTIST, null),
-    GENRE("Genre", GENRE, null);
+    ARTIST_ALBUM("Artist/Album", FolderEntityType.ARTIST, FolderEntityType.ALBUM),
+    ALBUM_ARTIST("Album/Artist", FolderEntityType.ALBUM, FolderEntityType.ARTIST),
+    GENRE_ARTIST("Genre/Artist", FolderEntityType.GENRE, FolderEntityType.ARTIST),
+    ALBUM("Album", FolderEntityType.ALBUM, null),
+    ARTIST("Artist", FolderEntityType.ARTIST, null),
+    GENRE("Genre", FolderEntityType.GENRE, null);
 
-    String displayname;
-    SortingScheme firstLevel;
-    SortingScheme secondLevel;
+    public final String displayname;
+    public final FolderEntityType firstLevel;
+    public final FolderEntityType secondLevel;
 
-    public SortingScheme(String displayname, SortingScheme firstLevel, SortingScheme secondLevel) {
+    SortingScheme(String displayname, FolderEntityType firstLevel, FolderEntityType secondLevel) {
         this.displayname = displayname;
         this.firstLevel = firstLevel;
         this.secondLevel = secondLevel;
