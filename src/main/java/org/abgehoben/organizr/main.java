@@ -8,9 +8,10 @@ import atlantafx.base.theme.PrimerLight;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import javafx.application.Application;
@@ -56,12 +57,12 @@ public class main extends Application {
     public static Path CONFIG_PATH = APP_DIR.resolve(APP_NAME + ".conf");
     public static final Settings settings = loadSettings();
 
-    private static final StringBuilder buffer = new StringBuilder();
-    private static final AtomicBoolean isUpdatePending = new AtomicBoolean(false);
+    private static final List<String> buffer = new ArrayList<>();
+    private static boolean isUpdatePending = false;
 
     private static ProgressBar progressBar; //TODO
     private static Label progressLabel;
-    private static TextArea progressArea;
+    private static ListView<String> progressArea;
     private static Button startBtn;
 
     public static void main(String[] args) {
@@ -170,7 +171,7 @@ public class main extends Application {
         startBtn = new Button("Start Sort");
         startBtn.setMinWidth(120);
         startBtn.setOnAction(evt -> {
-            progressArea.clear();
+//            progressArea.clear();
             settings.inputDir = inputField.getText();
             settings.outputDir = outputField.getText();
             settings.saveSettings();
@@ -186,11 +187,13 @@ public class main extends Application {
         var controls = new HBox(12, progressBar, progressLabel);
         controls.setAlignment(Pos.CENTER_LEFT);
 
-        progressArea = new TextArea();
+        progressArea = new ListView<>();
         progressArea.setEditable(false);
-        progressArea.setWrapText(false);
         progressArea.setPrefHeight(1780);
         progressArea.setStyle("-fx-font-family: monospace; -fx-font-size: 11px;");
+        progressArea.getStyleClass().add("console-view");
+        progressArea.setFixedCellSize(16.0);
+
 
         var center = new VBox(12, inputRow, outputRow, new HBox(12, startBtn, controls), progressArea);
         center.setPadding(new Insets(12));
@@ -296,27 +299,24 @@ public class main extends Application {
      */
     public static void addProgressText(String text) {
         System.out.println(text);
-
         synchronized (buffer) {
-            buffer.append(text).append(System.lineSeparator());
+            buffer.add(text);
+            if (isUpdatePending) return;
+            isUpdatePending = true;
         }
 
-        if (isUpdatePending.compareAndSet(false, true)) {
-            Platform.runLater(() -> {
-                String toAppend;
+        Platform.runLater(() -> {
+            List<String> copy;
+            synchronized (buffer) {
+                copy = new ArrayList<>(buffer);
+                buffer.clear();
+                isUpdatePending = false;
+            }
 
-                synchronized (buffer) {
-                    toAppend = buffer.toString();
-                    buffer.setLength(0);
-                    isUpdatePending.set(false);
-                }
-                progressArea.appendText(toAppend);
+            progressArea.getItems().addAll(copy);
 
-                if (progressArea.getLength() > 40000) {
-                    progressArea.replaceText(0, 10000, "");
-                }
-            });
-        }
+            progressArea.scrollTo(progressArea.getItems().size() - 1);
+        });
     }
 
     /**
