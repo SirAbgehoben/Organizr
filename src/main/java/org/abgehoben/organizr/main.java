@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import javafx.application.Application;
@@ -54,6 +55,9 @@ public class main extends Application {
     public static final Path APP_DIR = getAppDir();
     public static Path CONFIG_PATH = APP_DIR.resolve(APP_NAME + ".conf");
     public static final Settings settings = loadSettings();
+
+    private static final StringBuilder buffer = new StringBuilder();
+    private static final AtomicBoolean isUpdatePending = new AtomicBoolean(false);
 
     private static ProgressBar progressBar; //TODO
     private static Label progressLabel;
@@ -292,11 +296,26 @@ public class main extends Application {
      */
     public static void addProgressText(String text) {
         System.out.println(text);
-        Platform.runLater(() -> {
-            if (progressArea != null) {
-                progressArea.appendText(text + System.lineSeparator());
-            }
-        });
+
+        synchronized (buffer) {
+            buffer.append(text).append(System.lineSeparator());
+        }
+
+        if (isUpdatePending.compareAndSet(false, true)) {
+            Platform.runLater(() -> {
+                String toAppend;
+
+                synchronized (buffer) {
+                    toAppend = buffer.toString();
+                    buffer.setLength(0);
+                    isUpdatePending.set(false);
+                }
+
+                if (progressArea != null) {
+                    progressArea.appendText(toAppend);
+                }
+            });
+        }
     }
 
     /**
