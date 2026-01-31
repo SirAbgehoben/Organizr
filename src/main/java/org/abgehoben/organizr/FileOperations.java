@@ -11,9 +11,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.abgehoben.organizr.Metadata.getFileMetadata;
-import static org.abgehoben.organizr.main.addProgressText;
-import static org.abgehoben.organizr.main.updateProgressBar;
-import static org.abgehoben.organizr.sorting.files;
+import static org.abgehoben.organizr.Main.addProgressText;
+import static org.abgehoben.organizr.Main.updateProgressBar;
+import static org.abgehoben.organizr.Sorting.files;
 
 public class FileOperations {
 

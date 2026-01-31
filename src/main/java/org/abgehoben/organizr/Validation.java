@@ -13,8 +13,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-import static org.abgehoben.organizr.main.addProgressText;
-import static org.abgehoben.organizr.main.updateProgressBar;
+import static org.abgehoben.organizr.Main.addProgressText;
+import static org.abgehoben.organizr.Main.updateProgressBar;
 
 public class Validation {
     public static int validate(Settings params, Stage owner) {
@@ -35,7 +35,7 @@ public class Validation {
             if (validationsFailed == 1) {
                 addProgressText("Are you sure you want to continue? This will delete existing files in the output directory.");
                 CompletableFuture<Boolean> future = new CompletableFuture<>();
-                Platform.runLater(() -> future.complete(main.showNotEmptyConfirmation(owner)));
+                Platform.runLater(() -> future.complete(Ui.showNotEmptyConfirmation(owner)));
                 boolean result = future.join();
                 if (result) validationsFailed--;
             }

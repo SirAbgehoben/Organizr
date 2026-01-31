@@ -12,9 +12,9 @@ import java.util.*;
 
 import static org.abgehoben.organizr.FileOperations.*;
 import static org.abgehoben.organizr.Validation.validate;
-import static org.abgehoben.organizr.main.*;
+import static org.abgehoben.organizr.Main.*;
 
-public class sorting {
+public class Sorting {
     public static ArrayList<MusicFile> files = new ArrayList<>();
     public static Task <Void> sortingTask;
 

@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.abgehoben.organizr.main.addProgressText;
+import static org.abgehoben.organizr.Main.addProgressText;
 
 public class Metadata {
 

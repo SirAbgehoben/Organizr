@@ -1,19 +1,7 @@
 package org.abgehoben.organizr;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.abgehoben.organizr.Settings.loadSettings;
-
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.function.Function;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -38,38 +26,19 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignS;
 
-public class main extends Application {
+import java.nio.file.Path;
+import java.util.function.Function;
 
-    static final String ASSETS_DIR = "/assets/";
+import static org.abgehoben.organizr.Main.*;
+import static org.abgehoben.organizr.Settings.loadSettings;
 
-    static final String APP_ICON_PATH = Objects.requireNonNull(
-            main.class.getResource(ASSETS_DIR + "icons/app-icon.png")
-    ).toExternalForm();
-
-    static final String APP_PROPERTIES_PATH = "/application.properties";
-
-    static {
-        loadApplicationProperties();
-    }
-
-    public static final String APP_NAME = System.getProperty("app.name");
-    public static final Path APP_DIR = getAppDir();
-    public static Path CONFIG_PATH = APP_DIR.resolve(APP_NAME + ".conf");
-    public static final Settings settings = loadSettings();
-
-    private static final List<String> buffer = new ArrayList<>();
-    private static boolean isUpdatePending = false;
-
-    private static ProgressBar progressBar;
-    private static Label progressLabel;
-    private static ListView<String> progressArea;
-    private static Button startBtn;
-
-    public static void main(String[] args) {
+public class Ui extends Application {
+    public static void launch(String[] args) {
         loadSettings();
         Runtime.getRuntime().addShutdownHook(new Thread(settings::saveSettings));
-        launch(args);
+        Application.launch(args);
     }
+
 
     @Override
     public void start(Stage stage) {
@@ -176,7 +145,7 @@ public class main extends Application {
             settings.outputDir = outputField.getText();
             settings.saveSettings();
             startBtn.setDisable(true);
-            sorting.sortFilesAsync(settings.getSettings(), stage);
+            Sorting.sortFilesAsync(settings.getSettings(), stage);
         });
 
         progressBar = new ProgressBar(0);
@@ -292,87 +261,5 @@ public class main extends Application {
         alert.setContentText("Are you sure you want to continue? This will delete existing files in the output directory.");
 
         return alert.showAndWait().filter(response -> response == ButtonType.OK).isPresent();
-    }
-
-    /**
-     * Append a single line to the progress view.
-     */
-    public static void addProgressText(String text) {
-        System.out.println(text);
-        synchronized (buffer) {
-            buffer.add(text);
-            if (isUpdatePending) return;
-            isUpdatePending = true;
-        }
-
-        Platform.runLater(() -> {
-            List<String> copy;
-            synchronized (buffer) {
-                copy = new ArrayList<>(buffer);
-                buffer.clear();
-                isUpdatePending = false;
-            }
-
-            progressArea.getItems().addAll(copy);
-
-            progressArea.scrollTo(progressArea.getItems().size() - 1);
-        });
-    }
-
-    /**
-     * sets the progressLabel text
-     */
-    public static void addProgressLabelText(String text) {
-        Platform.runLater(() -> {
-                if (progressLabel != null) {
-                    progressLabel.setText(text);
-                }
-        });
-    }
-
-    /**
-     * Updates the progress bar.
-     * @param workDone The current number of files processed.
-     * @param total The total number of files. Pass -1 to make the bar wave.
-     */
-    public static void updateProgressBar(double workDone, double total) {
-        Platform.runLater(() -> {
-            if (progressBar != null) {
-                if (workDone < 0) {
-                    progressBar.setProgress(-1);
-                } else if (total <= 0) {
-                    progressBar.setProgress(0);
-                } else {
-                    progressBar.setProgress(workDone / total);
-                }
-            }
-        });
-    }
-
-    public static void enableStartButton() {
-        Platform.runLater(() -> startBtn.setDisable(false));
-    }
-
-    private static void loadApplicationProperties() {
-        try {
-            Properties properties = new Properties();
-            properties.load(new InputStreamReader(
-                    Objects.requireNonNull(main.class.getResourceAsStream(APP_PROPERTIES_PATH)),
-                    UTF_8
-            ));
-            properties.forEach((key, value) -> System.setProperty(
-                    String.valueOf(key),
-                    String.valueOf(value)
-            ));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static Path getAppDir() {
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("win")) return Path.of(System.getenv("APPDATA"), APP_NAME);
-        if (os.contains("mac")) return Path.of(System.getProperty("user.home"), "Library/Application Support", APP_NAME);
-        return Path.of(System.getenv().getOrDefault("XDG_CONFIG_HOME", System.getProperty("user.home") + "/.config"), APP_NAME);
     }
 }

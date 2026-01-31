@@ -25,7 +25,7 @@
         <app.name>organizr</app.name>
         <app.version>${project.version}</app.version>
         <app.moduleName>main</app.moduleName>
-        <app.mainClass>org.abgehoben.organizr.main</app.mainClass>
+        <app.mainClass>org.abgehoben.organizr.Main</app.mainClass>
 
         <lib.atlantafx.version>2.0.1</lib.atlantafx.version>
         <lib.ikonli.version>12.3.1</lib.ikonli.version>
@@ -142,6 +142,27 @@
                             <options>
                                 <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005</option>
                             </options>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${app.mainClass}</mainClass>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>

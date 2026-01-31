@@ -13,7 +13,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.abgehoben.organizr.main.*;
+import static org.abgehoben.organizr.Main.*;
 
 public class Settings {
     // Default values
