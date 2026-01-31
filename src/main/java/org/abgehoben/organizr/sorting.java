@@ -28,7 +28,7 @@ public class sorting {
             }
         };
 
-        sortingTask.setOnSucceeded(e -> {
+        sortingTask.setOnSucceeded(_ -> {
             Date endTime = new Date();
             long timeDiff = endTime.getTime() - startTime.getTime();
             long seconds = (timeDiff / 1000) % 60;
@@ -38,7 +38,7 @@ public class sorting {
             addProgressText("Completed in " + timeString);
             enableStartButton();
         });
-        sortingTask.setOnFailed(e -> {
+        sortingTask.setOnFailed(_ -> {
             addProgressText("Sorting failed: " + sortingTask.getException().getMessage());
             addProgressLabelText("There was an error during sorting.");
 

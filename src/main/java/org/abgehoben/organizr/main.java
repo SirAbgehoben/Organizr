@@ -82,7 +82,7 @@ public class main extends Application {
         stage.setScene(scene);
         stage.setTitle(APP_NAME);
         stage.getIcons().add(new Image(APP_ICON_PATH));
-        stage.setOnCloseRequest(e -> Platform.exit());
+        stage.setOnCloseRequest(_ -> Platform.exit());
         stage.setMinWidth(214);
         stage.setMinHeight(262);
         stage.setMaxWidth(1440);
@@ -106,7 +106,7 @@ public class main extends Application {
         var themeBtn = new Button();
         themeBtn.setGraphic(new FontIcon(MaterialDesignM.MOON_WAXING_CRESCENT));
         themeBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 6;");
-        themeBtn.setOnAction(evt -> {
+        themeBtn.setOnAction(_ -> {
             if (settings.darkMode) {
                 Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
                 themeBtn.setGraphic(new FontIcon(MaterialDesignM.MOON_FULL));
@@ -121,7 +121,7 @@ public class main extends Application {
         var settingsBtn = new Button();
         settingsBtn.setGraphic(new FontIcon(MaterialDesignC.COG));
         settingsBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 6;");
-        settingsBtn.setOnAction(evt -> openSettingsWindow(stage));
+        settingsBtn.setOnAction(_ -> openSettingsWindow(stage));
 
         var rightIcons = new HBox(6, themeBtn, settingsBtn);
         rightIcons.setAlignment(Pos.CENTER_RIGHT);
@@ -138,7 +138,7 @@ public class main extends Application {
         var inputBtn = new Button("Choose Input");
         inputBtn.setPrefWidth(158);
         inputBtn.setMinWidth(158);
-        inputBtn.setOnAction(evt -> {
+        inputBtn.setOnAction(_ -> {
             var chooser = new DirectoryChooser();
             chooser.setTitle("Select Input Directory");
             Path dir = chooser.showDialog(stage).toPath();
@@ -157,7 +157,7 @@ public class main extends Application {
         var outputBtn = new Button("Choose Output");
         outputBtn.setPrefWidth(158);
         outputBtn.setMinWidth(158);
-        outputBtn.setOnAction(evt -> {
+        outputBtn.setOnAction(_ -> {
             var chooser = new DirectoryChooser();
             chooser.setTitle("Select Output Directory");
             Path dir = chooser.showDialog(stage).toPath();
@@ -170,7 +170,7 @@ public class main extends Application {
 
         startBtn = new Button("Start Sort");
         startBtn.setMinWidth(120);
-        startBtn.setOnAction(evt -> {
+        startBtn.setOnAction(_ -> {
             progressArea.getItems().clear();
             settings.inputDir = inputField.getText();
             settings.outputDir = outputField.getText();
@@ -228,7 +228,7 @@ public class main extends Application {
 
 
         var saveBtn = new Button("Save");
-        saveBtn.setOnAction(e -> {
+        saveBtn.setOnAction(_ -> {
             settings.includeSubdirs = includeSubdirs.isSelected();
             settings.useSymlinks = useSymlinks.isSelected();
             settings.keepDate = keepDate.isSelected();
@@ -242,7 +242,7 @@ public class main extends Application {
         });
 
         var closeBtn = new Button("Close");
-        closeBtn.setOnAction(e -> settingsStage.close());
+        closeBtn.setOnAction(_ -> settingsStage.close());
 
         var buttons = new HBox(8, saveBtn, closeBtn);
         buttons.setAlignment(Pos.BOTTOM_RIGHT);

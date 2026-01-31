@@ -44,13 +44,13 @@ public class FileOperations {
                     for (MetadataEntity l2Entity : secondLevelEntities) {
                         Path fullPath = subMap.get(l2Entity);
                         if (fullPath != null) {
-                            fileMap.computeIfAbsent(file, k -> new ArrayList<>()).add(fullPath);
+                            fileMap.computeIfAbsent(file, _ -> new ArrayList<>()).add(fullPath);
                             addProgressText("Mapped " + file.title() + " to " + fullPath);
                         }
                     }
                 }
                 else {
-                    fileMap.computeIfAbsent(file, k -> new ArrayList<>()).add(level1Path);
+                    fileMap.computeIfAbsent(file, _ -> new ArrayList<>()).add(level1Path);
                     addProgressText("Mapped " + file.title() + " to " + level1Path);
                 }
             }
@@ -83,21 +83,21 @@ public class FileOperations {
     public static void createSubDirFolders(Settings params, HashMap<Path, MetadataEntity> parentFolders, FolderIndex folderIndex) {
         switch (params.sortingScheme.secondLevel) {
             case FolderEntityType.ALBUM -> parentFolders.forEach((parentPath, parentMetadataEntity) -> {
-                Map<MetadataEntity, Path> childMap = folderIndex.childPaths.computeIfAbsent(parentMetadataEntity, k -> new HashMap<>());
+                Map<MetadataEntity, Path> childMap = folderIndex.childPaths.computeIfAbsent(parentMetadataEntity, _ -> new HashMap<>());
                 parentMetadataEntity.getAlbums().forEach(album -> {
                     Path fullPath = createFolder(album.name(), parentPath);
                     childMap.put(album, fullPath);
                 });
             });
             case FolderEntityType.ARTIST -> parentFolders.forEach((parentPath, parentMetadataEntity) -> {
-                Map<MetadataEntity, Path> childMap = folderIndex.childPaths.computeIfAbsent(parentMetadataEntity, k -> new HashMap<>());
+                Map<MetadataEntity, Path> childMap = folderIndex.childPaths.computeIfAbsent(parentMetadataEntity, _ -> new HashMap<>());
                 parentMetadataEntity.getArtists().forEach(artist -> {
                     Path fullPath = createFolder(artist.name(), parentPath);
                     childMap.put(artist, fullPath);
                 });
             });
             case FolderEntityType.GENRE -> parentFolders.forEach((parentPath, parentMetadataEntity) -> {
-                Map<MetadataEntity, Path> childMap = folderIndex.childPaths.computeIfAbsent(parentMetadataEntity, k -> new HashMap<>());
+                Map<MetadataEntity, Path> childMap = folderIndex.childPaths.computeIfAbsent(parentMetadataEntity, _ -> new HashMap<>());
                 parentMetadataEntity.getGenres().forEach(genre -> {
                     Path fullPath = createFolder(genre.name(), parentPath);
                     childMap.put(genre, fullPath);
