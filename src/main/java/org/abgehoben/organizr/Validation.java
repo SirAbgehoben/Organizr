@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 import static org.abgehoben.organizr.main.addProgressText;
+import static org.abgehoben.organizr.main.updateProgressBar;
 
 public class Validation {
     public static int validate(Settings params, Stage owner) {
@@ -101,7 +102,7 @@ public class Validation {
         if (!Files.exists(directory)) {
             return;
         }
-
+        updateProgressBar(-1, -1);
         //noinspection NullableProblems
         Files.walkFileTree(directory, new SimpleFileVisitor<>() {
 

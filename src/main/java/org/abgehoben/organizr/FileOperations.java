@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.abgehoben.organizr.Metadata.getFileMetadata;
 import static org.abgehoben.organizr.main.addProgressText;
+import static org.abgehoben.organizr.main.updateProgressBar;
 import static org.abgehoben.organizr.sorting.files;
 
 public class FileOperations {
@@ -78,14 +80,12 @@ public class FileOperations {
         return createdFolders;
     }
 
-    public static HashMap<Path, MetadataEntity> createSubDirFolders(Settings params, HashMap<Path, MetadataEntity> parentFolders, FolderIndex folderIndex) {
-        HashMap<Path, MetadataEntity> createdFolders = new HashMap<>();
+    public static void createSubDirFolders(Settings params, HashMap<Path, MetadataEntity> parentFolders, FolderIndex folderIndex) {
         switch (params.sortingScheme.secondLevel) {
             case FolderEntityType.ALBUM -> parentFolders.forEach((parentPath, parentMetadataEntity) -> {
                 Map<MetadataEntity, Path> childMap = folderIndex.childPaths.computeIfAbsent(parentMetadataEntity, k -> new HashMap<>());
                 parentMetadataEntity.getAlbums().forEach(album -> {
                     Path fullPath = createFolder(album.name(), parentPath);
-                    createdFolders.put(fullPath, album);
                     childMap.put(album, fullPath);
                 });
             });
@@ -93,7 +93,6 @@ public class FileOperations {
                 Map<MetadataEntity, Path> childMap = folderIndex.childPaths.computeIfAbsent(parentMetadataEntity, k -> new HashMap<>());
                 parentMetadataEntity.getArtists().forEach(artist -> {
                     Path fullPath = createFolder(artist.name(), parentPath);
-                    createdFolders.put(fullPath, artist);
                     childMap.put(artist, fullPath);
                 });
             });
@@ -101,12 +100,10 @@ public class FileOperations {
                 Map<MetadataEntity, Path> childMap = folderIndex.childPaths.computeIfAbsent(parentMetadataEntity, k -> new HashMap<>());
                 parentMetadataEntity.getGenres().forEach(genre -> {
                     Path fullPath = createFolder(genre.name(), parentPath);
-                    createdFolders.put(fullPath, genre);
                     childMap.put(genre, fullPath);
                 });
             });
         }
-        return createdFolders;
     }
 
     public static ArrayList<MusicFile> getFiles(Settings params) throws IOException {
@@ -158,7 +155,12 @@ public class FileOperations {
     }
 
     public static void copyFilesToDestinations(HashMap<MusicFile, ArrayList<Path>> fileMap, Settings params) {
+        int total = fileMap.size();
+        AtomicInteger processedCount = new AtomicInteger(0);
+        updateProgressBar(0, total);
+
         fileMap.entrySet().parallelStream().forEach(entry -> {
+            int current = processedCount.incrementAndGet();
             MusicFile sourceFile = entry.getKey();
             ArrayList<Path> paths = entry.getValue();
 
@@ -174,11 +176,19 @@ public class FileOperations {
                     copyFile(sourceFile, destPath, params);
                 }
             }
+            if (current % 20 == 0 || current == total) {
+                updateProgressBar(current, total);
+            }
         });
     }
 
     public static void moveFilesToDestinations(HashMap<MusicFile, ArrayList<Path>> fileMap, Settings params) {
+        int total = fileMap.size();
+        AtomicInteger processedCount = new AtomicInteger(0);
+        updateProgressBar(0, total);
+
         fileMap.entrySet().parallelStream().forEach(entry -> {
+            int current = processedCount.incrementAndGet();
             MusicFile sourceFile = entry.getKey();
             ArrayList<Path> paths = entry.getValue();
 
@@ -194,15 +204,26 @@ public class FileOperations {
                     moveFile(sourceFile, destPath, params);
                 }
             }
+            if (current % 20 == 0 || current == total) {
+                updateProgressBar(current, total);
+            }
         });
     }
     public static void createSymlinksInDestinations(HashMap<MusicFile, ArrayList<Path>> fileMap) {
+        int total = fileMap.size();
+        AtomicInteger processedCount = new AtomicInteger(0);
+        updateProgressBar(0, total);
+
         fileMap.entrySet().parallelStream().forEach(entry -> {
+            int current = processedCount.incrementAndGet();
             MusicFile sourceFile = entry.getKey();
             ArrayList<Path> paths = entry.getValue();
 
             for (Path destPath : paths) {
                 createSymlink(sourceFile, destPath);
+            }
+            if (current % 10 == 0 || current == total) {
+                updateProgressBar(current, total);
             }
         });
     }

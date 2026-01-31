@@ -60,7 +60,7 @@ public class main extends Application {
     private static final List<String> buffer = new ArrayList<>();
     private static boolean isUpdatePending = false;
 
-    private static ProgressBar progressBar; //TODO
+    private static ProgressBar progressBar;
     private static Label progressLabel;
     private static ListView<String> progressArea;
     private static Button startBtn;
@@ -327,6 +327,25 @@ public class main extends Application {
                 if (progressLabel != null) {
                     progressLabel.setText(text);
                 }
+        });
+    }
+
+    /**
+     * Updates the progress bar.
+     * @param workDone The current number of files processed.
+     * @param total The total number of files. Pass -1 to make the bar wave.
+     */
+    public static void updateProgressBar(double workDone, double total) {
+        Platform.runLater(() -> {
+            if (progressBar != null) {
+                if (workDone < 0) {
+                    progressBar.setProgress(-1);
+                } else if (total <= 0) {
+                    progressBar.setProgress(0);
+                } else {
+                    progressBar.setProgress(workDone / total);
+                }
+            }
         });
     }
 

@@ -16,10 +16,11 @@ import static org.abgehoben.organizr.main.*;
 
 public class sorting {
     public static ArrayList<MusicFile> files = new ArrayList<>();
+    public static Task <Void> sortingTask;
 
     public static void sortFilesAsync(Settings params, Stage owner) {
         Date startTime = new Date();
-        Task<Void> task = new Task<>() {
+        sortingTask = new Task<>() {
             @Override
             protected Void call() {
                 startSort(params, owner);
@@ -27,7 +28,7 @@ public class sorting {
             }
         };
 
-        task.setOnSucceeded(e -> {
+        sortingTask.setOnSucceeded(e -> {
             Date endTime = new Date();
             long timeDiff = endTime.getTime() - startTime.getTime();
             long seconds = (timeDiff / 1000) % 60;
@@ -35,18 +36,20 @@ public class sorting {
             long hours = (timeDiff / (1000 * 60 * 60)) % 24;
             String timeString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
             addProgressText("Completed in " + timeString);
-            addProgressLabelText("finished");
             enableStartButton();
         });
-        task.setOnFailed(e -> {
-            addProgressText("Sorting failed: " + task.getException().getMessage());
+        sortingTask.setOnFailed(e -> {
+            addProgressText("Sorting failed: " + sortingTask.getException().getMessage());
             addProgressLabelText("There was an error during sorting.");
+
+            updateProgressBar(0, 0);
             enableStartButton();
         });
 
-        new Thread(task).start();
+        new Thread(sortingTask).start();
     }
     public static void startSort(Settings params, Stage owner) {
+        updateProgressBar(0, 0);
         addProgressLabelText("Validating");
         int validationsFailed = validate(params, owner);
         if (validationsFailed > 0) {
@@ -55,6 +58,7 @@ public class sorting {
             return;
         }
         addProgressText("All validations passed.");
+        updateProgressBar(-1, -1);
         try {
             addProgressLabelText("Getting files");
             files = getFiles(params);
