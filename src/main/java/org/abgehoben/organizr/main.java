@@ -171,7 +171,7 @@ public class main extends Application {
         startBtn = new Button("Start Sort");
         startBtn.setMinWidth(120);
         startBtn.setOnAction(evt -> {
-//            progressArea.clear();
+            progressArea.getItems().clear();
             settings.inputDir = inputField.getText();
             settings.outputDir = outputField.getText();
             settings.saveSettings();
