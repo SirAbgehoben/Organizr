@@ -42,8 +42,8 @@ jobs:
       - name: Upload Universal Jar
         uses: actions/upload-artifact@v4
         with:
-          name: organizr-${{ steps.get_info.outputs.version }}-universal
-          path: organizr-${{ steps.get_info.outputs.version }}-universal.jar
+          name: organizr-${{ steps.get_info.outputs.VERSION }}-universal
+          path: organizr-${{ steps.get_info.outputs.VERSION }}-universal.jar
 
 
   # --- MATRIX BUILD---
@@ -96,7 +96,6 @@ jobs:
             --app-version $VERSION \
             --icon src/main/resources/assets/icons/app-icon.png
 
-          # 2. Fix Layout for AppImage (AppRun, Desktop file, Icon must be at root of AppDir)
           cd dist/organizr
           
           # Create Desktop Entry
@@ -141,7 +140,10 @@ jobs:
 
           # Rename the output to include version
           # jpackage output: dist/organizr.exe -> release-artifacts/organizr-1.0.0-win.exe
-          Move-Item -Path "dist/organizr.exe" -Destination "release-artifacts/organizr-${env:VERSION}-win.exe"
+          $ExePath = Get-ChildItem -Path dist -Filter "*.exe" | Select-Object -First 1
+          Write-Host "Found EXE at: $($ExePath.FullName)"
+          
+          Move-Item -Path $ExePath.FullName -Destination "release-artifacts/organizr-${env:VERSION}-win.exe"
 
       # --- MACOS PACKAGING ---
       - name: Package macOS
@@ -158,7 +160,10 @@ jobs:
           
           # Rename output to include version
           # jpackage output: dist/organizr.dmg -> release-artifacts/organizr-1.0.0-mac.dmg
-          mv dist/organizr.dmg release-artifacts/organizr-${VERSION}-mac.dmg
+          DMG_PATH=$(find dist -name "*.dmg" | head -n 1)
+          echo "Found DMG at: $DMG_PATH"
+          
+          mv "$DMG_PATH" release-artifacts/organizr-${VERSION}-mac.dmg
 
       # --- UPLOAD ---
       - name: Upload Artifacts
