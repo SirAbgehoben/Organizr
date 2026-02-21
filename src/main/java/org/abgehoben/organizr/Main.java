@@ -1,18 +1,20 @@
 package org.abgehoben.organizr;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 import static org.abgehoben.organizr.Settings.loadSettings;
 import static org.abgehoben.organizr.Ui.launch;
 
+import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+
 import javafx.application.Platform;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 public class Main {
 
@@ -27,6 +29,8 @@ public class Main {
     static {
         loadApplicationProperties();
     }
+    static Boolean HAS_GUI = true;
+    static Console console;
 
     public static final String APP_NAME = System.getProperty("app.name");
     public static final Path APP_DIR = getAppDir();
@@ -42,9 +46,38 @@ public class Main {
     public static Button startBtn;
 
     public static void main(String[] args) {
-        loadSettings();
+        if (asList(args).contains("--no-gui")) {
+            HAS_GUI = false;
+        }
+        if (asList(args).contains("--help") || asList(args).contains("-h")) {
+            System.out.println("Usage: organizr [options]");
+            System.out.println("Options:");
+            System.out.println("  --no-gui      Run without GUI");
+            System.out.println("  --input=DIR   Set input directory");
+            System.out.println("  --output=DIR  Set output directory");
+            System.out.println("  --help, -h    Show this help message");
+            return;
+        }
+        for (String arg : args) {
+            if (arg.startsWith("--input=")) {
+                settings.inputDir = arg.substring("--input=".length());
+            } else if (arg.startsWith("--output=")) {
+                settings.outputDir = arg.substring("--output=".length());
+            }
+        }
         Runtime.getRuntime().addShutdownHook(new Thread(settings::saveSettings));
-        launch(args);
+        if (HAS_GUI) launch(args);
+        else launchConsole();
+    }
+
+    public static void launchConsole() {
+        console = System.console();
+        if (console == null) {
+            System.err.println("No console available. Cannot run in no-GUI mode.");
+            return;
+        }
+        System.out.println("test");
+        Sorting.sortFiles(settings);
     }
 
 
@@ -53,35 +86,39 @@ public class Main {
      */
     public static void addProgressText(String text) {
         System.out.println(text);
-        synchronized (buffer) {
-            buffer.add(text);
-            if (isBufferUpdatePending) return;
-            isBufferUpdatePending = true;
-        }
-
-        Platform.runLater(() -> {
-            List<String> copy;
+        if (HAS_GUI) {
             synchronized (buffer) {
-                copy = new ArrayList<>(buffer);
-                buffer.clear();
-                isBufferUpdatePending = false;
+                buffer.add(text);
+                if (isBufferUpdatePending) return;
+                isBufferUpdatePending = true;
             }
 
-            progressArea.getItems().addAll(copy);
+            Platform.runLater(() -> {
+                List<String> copy;
+                synchronized (buffer) {
+                    copy = new ArrayList<>(buffer);
+                    buffer.clear();
+                    isBufferUpdatePending = false;
+                }
 
-            progressArea.scrollTo(progressArea.getItems().size() - 1);
-        });
+                progressArea.getItems().addAll(copy);
+
+                progressArea.scrollTo(progressArea.getItems().size() - 1);
+            });
+        }
     }
 
     /**
      * sets the progressLabel text
      */
     public static void addProgressLabelText(String text) {
-        Platform.runLater(() -> {
+        if (HAS_GUI) {
+            Platform.runLater(() -> {
                 if (progressLabel != null) {
                     progressLabel.setText(text);
                 }
-        });
+            });
+        }
     }
 
     /**
@@ -90,21 +127,35 @@ public class Main {
      * @param total The total number of files. Pass -1 to make the bar wave.
      */
     public static void updateProgressBar(double workDone, double total) {
-        Platform.runLater(() -> {
-            if (progressBar != null) {
-                if (workDone < 0) {
-                    progressBar.setProgress(-1);
-                } else if (total <= 0) {
-                    progressBar.setProgress(0);
-                } else {
-                    progressBar.setProgress(workDone / total);
+        if (HAS_GUI) {
+            Platform.runLater(() -> {
+                if (progressBar != null) {
+                    if (workDone < 0) {
+                        progressBar.setProgress(-1);
+                    } else if (total <= 0) {
+                        progressBar.setProgress(0);
+                    } else {
+                        progressBar.setProgress(workDone / total);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public static void enableStartButton() {
         Platform.runLater(() -> startBtn.setDisable(false));
+    }
+
+    public static boolean showNotEmptyConfirmation(Stage owner) {
+        if (HAS_GUI) {
+            CompletableFuture<Boolean> future = new CompletableFuture<>();
+            Platform.runLater(() -> future.complete(Ui.showNotEmptyConfirmation(owner)));
+            return future.join();
+        }
+        else {
+            String response = console.readLine(":: Delete existing files? [y/N]");
+            return response.equalsIgnoreCase("y") || response.equalsIgnoreCase("yes");
+        }
     }
 
     private static void loadApplicationProperties() {

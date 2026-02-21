@@ -1,6 +1,5 @@
 package org.abgehoben.organizr;
 
-import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -9,12 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-import static org.abgehoben.organizr.Main.addProgressText;
-import static org.abgehoben.organizr.Main.updateProgressBar;
+import static org.abgehoben.organizr.Main.*;
 
 public class Validation {
     public static int validate(Settings params, Stage owner) {
@@ -34,10 +31,7 @@ public class Validation {
             validationsFailed++;
             if (validationsFailed == 1) {
                 addProgressText("Are you sure you want to continue? This will delete existing files in the output directory.");
-                CompletableFuture<Boolean> future = new CompletableFuture<>();
-                Platform.runLater(() -> future.complete(Ui.showNotEmptyConfirmation(owner)));
-                boolean result = future.join();
-                if (result) validationsFailed--;
+                if (Main.showNotEmptyConfirmation(owner)) validationsFailed--;
             }
             if (validationsFailed == 0) try {
                 cleanDirectory(params.getOutputPath());

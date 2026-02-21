@@ -48,6 +48,27 @@ public class Sorting {
 
         new Thread(sortingTask).start();
     }
+
+    //This should not be called from the UI thread, as it will block it.
+    public static void sortFiles(Settings params) {
+        Date startTime = new Date();
+        try {
+            startSort(params, null);
+            Date endTime = new Date();
+            long timeDiff = endTime.getTime() - startTime.getTime();
+            long seconds = (timeDiff / 1000) % 60;
+            long minutes = (timeDiff / (1000 * 60)) % 60;
+            long hours = (timeDiff / (1000 * 60 * 60)) % 24;
+            String timeString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+            addProgressText("Completed in " + timeString);
+        } catch (Exception e) {
+            addProgressText("Sorting failed: " + e.getMessage());
+            addProgressLabelText("There was an error during sorting.");
+
+            updateProgressBar(0, 0);
+        }
+    }
+
     public static void startSort(Settings params, Stage owner) {
         updateProgressBar(0, 0);
         addProgressLabelText("Validating");

@@ -30,12 +30,9 @@ import java.nio.file.Path;
 import java.util.function.Function;
 
 import static org.abgehoben.organizr.Main.*;
-import static org.abgehoben.organizr.Settings.loadSettings;
 
 public class Ui extends Application {
     public static void launch(String[] args) {
-        loadSettings();
-        Runtime.getRuntime().addShutdownHook(new Thread(settings::saveSettings));
         Application.launch(args);
     }
 
