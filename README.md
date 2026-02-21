@@ -13,6 +13,7 @@ proper metadata and folder structure
 - Using Symlinks to safe on space if a song needs to be copied multiple times
 - Modern JavaFx based Gui
 - Dark / Light mode
+- No GUI mode
 
 ## Prerequisites
 
@@ -40,6 +41,7 @@ proper metadata and folder structure
 
 - Getting Metadata from Nfo's is currently not implemented
 - Special characters are handled and cleaned in filenames
+- Use the -h or --help flag to get a list of all available command line options
 
 ## Contributing
 
