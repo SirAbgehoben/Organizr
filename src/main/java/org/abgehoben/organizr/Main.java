@@ -76,7 +76,6 @@ public class Main {
             System.err.println("No console available. Cannot run in no-GUI mode.");
             return;
         }
-        System.out.println("test");
         Sorting.sortFiles(settings);
     }
 
