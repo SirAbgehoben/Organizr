@@ -71,7 +71,7 @@ public class Ui extends Application {
 
         var themeBtn = new Button();
         themeBtn.setGraphic(new FontIcon(MaterialDesignM.MOON_WAXING_CRESCENT));
-        themeBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 6;");
+        themeBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0;");
         themeBtn.setOnAction(_ -> {
             if (settings.darkMode) {
                 Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
@@ -86,7 +86,7 @@ public class Ui extends Application {
 
         var settingsBtn = new Button();
         settingsBtn.setGraphic(new FontIcon(MaterialDesignC.COG));
-        settingsBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 6;");
+        settingsBtn.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 12;");
         settingsBtn.setOnAction(_ -> openSettingsWindow(stage));
 
         var rightIcons = new HBox(6, themeBtn, settingsBtn);
